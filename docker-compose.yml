@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  seabird-core:
+    image: seabirdchat/seabird-core
+    ports:
+      - "11235:11235"
+    volumes:
+      - ./:/data
+    environment:
+      - SEABIRD_TOKEN_FILE=/data/tokens.json
+
+  seabird-irc-backend:
+    image: seabirdchat/seabird-irc-backend
+    links:
+      - seabird-core
+      - ircd
+    environment:
+      - SEABIRD_HOST=http://seabird-core:11235
+      - SEABIRD_TOKEN=irc-backend-token
+      - IRC_NICK=seabird
+      - IRC_USER=seabird
+      - "IRC_HOST=irc://ircd:6667"
+      - "IRC_CHANNELS=#main"
+      - "IRC_COMMAND_PREFIX=!"
+
+  ircd:
+    image: ergochat/ergo
+    ports:
+      - "6667:6667"
